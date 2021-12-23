@@ -1,10 +1,7 @@
 use std::env;
 use std::fs;
 
-use std::io::{stdin, stdout, Stdout, Write};
-use termion::event::Key;
-use termion::input::TermRead;
-use termion::raw::{IntoRawMode, RawTerminal};
+use std::io::{stdin, Read};
 
 // Helper function for '[' and ']' commands
 fn get_corresponding(
@@ -25,7 +22,7 @@ fn get_corresponding(
     }
 }
 
-fn interpret(program: Vec<u8>, stdout: &mut RawTerminal<Stdout>) {
+fn interpret(program: Vec<u8>) {
     // All state for the interpreter
     let mut instruction_ptr: usize = 0;
     let mut data_ptr: usize = 0;
@@ -37,28 +34,14 @@ fn interpret(program: Vec<u8>, stdout: &mut RawTerminal<Stdout>) {
             '<' => data_ptr -= 1,
             '+' => data[data_ptr] = data[data_ptr].wrapping_add(1),
             '-' => data[data_ptr] = data[data_ptr].wrapping_sub(1),
-            '.' => {
-                print!("{}", data[data_ptr] as char);
-                // Workaround for raw mode terminal
-                if data[data_ptr] as char == '\n' {
-                    print!("\r");
-                }
-                stdout.flush().unwrap();
-            }
+            '.' => print!("{}", data[data_ptr] as char),
             ',' => {
-                // Get first key press that represents a rust char
-                for c in stdin().keys() {
-                    match c.unwrap() {
-                        Key::Char(c) => {
-                            data[data_ptr] = c as u8;
-                            break;
-                        }
-                        Key::Esc => return,
-                        _ => {}
-                    }
+                // Don't write to memory if byte is EOF
+                let byte = stdin().bytes().next().and_then(|r| r.ok());
+                if !byte.is_none() {
+                    data[data_ptr] = byte.unwrap();
                 }
             }
-            // For the following 2 instructions, 'n' represents stack depth
             '[' => {
                 if data[data_ptr] == 0 {
                     get_corresponding(&program, &mut instruction_ptr, 1, '[', ']');
@@ -84,6 +67,5 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let filename = &args[1];
     let program = fs::read_to_string(filename).unwrap().into_bytes();
-    let mut stdout = stdout().into_raw_mode().unwrap();
-    interpret(program, &mut stdout);
+    interpret(program);
 }
