@@ -1,6 +1,6 @@
 # Brainf*ck Interpreter
 
-Thisis just a normal Brainf\*ck interpreter written in Rust. If you don't know
+This is just a normal Brainf\*ck interpreter written in Rust. If you don't know
 what Brainf*ck is, you can check out the [wikipedia page](https://en.wikipedia.org/wiki/Brainfuck#Language_design). It's just a really
 simple programming language. The syntax is really weird to look at, hence the
 name.
