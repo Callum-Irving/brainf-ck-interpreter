@@ -20,19 +20,17 @@ If you run this program, the output is:
 Hello, world!
 ```
 
-## Running
-
-### Requirements
+## Requirements
 
 - To run this you need Rust and Cargo installed on your system. The recommended
 way to install them is through [rustup](https://rustup.rs/).
 
-### Usage
-
-To run this project, clone this repository and then use
+## Usage
 
 ```
-cargo run -- <filename>
-```
+Usage: cargo run -- [-ih] <file>
 
-where `<filename>` is the source file.
+OPTIONS:
+ -i --interactive       run in interactive mode
+ -h --help              print this help message
+```
