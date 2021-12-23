@@ -67,7 +67,7 @@ fn interpret(program: Vec<u8>) {
     }
 }
 
-fn interpret_interactive(program: Vec<u8>) {
+fn interpret_interactive(program: Vec<u8>, quiet: bool) {
     let mut stdout = stdout().into_raw_mode().unwrap();
 
     let mut instruction_ptr: usize = 0;
@@ -94,11 +94,13 @@ fn interpret_interactive(program: Vec<u8>) {
                     match c.unwrap() {
                         Key::Char(c) => {
                             data[data_ptr] = c as u8;
-                            print!("{}", c);
-                            if c == '\n' {
-                                print!("\r");
+                            if !quiet {
+                                print!("{}", c);
+                                if c == '\n' {
+                                    print!("\r");
+                                }
+                                stdout.flush().unwrap();
                             }
-                            stdout.flush().unwrap();
                             break;
                         }
                         Key::Ctrl('c') => {
@@ -137,11 +139,13 @@ fn main() {
 
     let mut interactive = false;
     let mut filename = "".to_string();
+    let mut quiet = false;
 
     let usage = || {
         println!("Usage: {} [-ih] <file>\n", &args[0]);
         println!("OPTIONS:");
         println!(" -i --interactive\trun in interactive mode");
+        println!(" -q --quiet\t\tdon't show input in interactive mode");
         println!(" -h --help\t\tprint this help message");
     };
 
@@ -152,6 +156,7 @@ fn main() {
                 usage();
                 std::process::exit(0);
             }
+            "-q" | "--quiet" => quiet = true,
             _ => {
                 if arg.chars().next() == Some('-') {
                     println!("ERROR: Unknown argument '{}'\n", arg);
@@ -199,7 +204,7 @@ fn main() {
     };
 
     if interactive {
-        interpret_interactive(program);
+        interpret_interactive(program, quiet);
     } else {
         interpret(program);
     }
