@@ -104,7 +104,7 @@ fn interpret_interactive(program: Vec<u8>, quiet: bool) {
                             break;
                         }
                         Key::Ctrl('c') => {
-                            // Dtop stdout to put terminal back in normal mode
+                            // Drop stdout to put terminal back in normal mode
                             drop(stdout);
                             print!("^C");
                             std::process::exit(130);
